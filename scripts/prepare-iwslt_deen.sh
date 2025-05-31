@@ -36,7 +36,7 @@ python /src/scripts/bert_prepro.py --src $TMP/train.de.bert \
 VSIZE=200000
 FREQ=0
 SHARD_SIZE=200000
-python /src/opennmt/preprocess.py \
+python opennmt/preprocess.py \
     -train_src $TMP/train.de.bert \
     -train_tgt $TMP/train.en.bert \
     -valid_src $TMP/valid.de.bert \
