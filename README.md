@@ -33,7 +33,7 @@ This repo is tested on Ubuntu 18.04 machine with Nvidia GPU. We do not plan to s
 
     - Run the following command to download raw data and then preprocess
         ```bash
-        source scripts/setup.sh <data_folder>
+        source scripts/setup.sh $(pwd)/data
         ```
         and then you should see <data_folder> populated with files of the following structure.
         ```
