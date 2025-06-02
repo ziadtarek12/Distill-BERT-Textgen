@@ -62,7 +62,7 @@ This repo is tested on Ubuntu 18.04 machine with Nvidia GPU. We do not plan to s
 ## Usage
 First, launch the docker container
 ```bash
-source launch_container.sh <data_folder> <output_folder>
+source launch_container.sh $(pwd)/data $(pwd)/output  
 ```
 This will mount <data_folder>/dump (contains preprocessed data), <output_folder> (store experiment outputs),
 and the repo itself (so that any code you change is reflected inside the container).
