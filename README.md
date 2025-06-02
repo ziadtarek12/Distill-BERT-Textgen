@@ -33,7 +33,7 @@ This repo is tested on Ubuntu 18.04 machine with Nvidia GPU. We do not plan to s
 
     - Run the following command to download raw data and then preprocess
         ```bash
-        source scripts/setup.sh <data_folder>
+        source scripts/setup.sh $(pwd)/data
         ```
         and then you should see <data_folder> populated with files of the following structure.
         ```
@@ -62,9 +62,9 @@ This repo is tested on Ubuntu 18.04 machine with Nvidia GPU. We do not plan to s
 ## Usage
 First, launch the docker container
 ```bash
-source launch_container.sh <data_folder> <output_folder>
+source launch_container.sh $(pwd)/data $(pwd)/output
 ```
-This will mount <data_folder>/dump (contains preprocessed data), <output_folder> (store experiment outputs),
+This will mount data/dump (contains preprocessed data), output (store experiment outputs),
 and the repo itself (so that any code you change is reflected inside the container).
 All following commands in this section should be run inside the docker container.
 To exit the docker environment, type `exit` or press Ctrl+D.
@@ -77,7 +77,7 @@ To exit the docker environment, type `exit` or press Ctrl+D.
                                     --valid_src /data/de-en/dev.de.bert \
                                     --valid_tgt /data/de-en/dev.en.bert \
                                     --bert_model bert-base-multilingual-cased \
-                                    --output_dir /output/<exp_name> \
+                                    --output_dir /output/cmlm_finetune \
                                     --train_batch_size 16384 \
                                     --learning_rate 5e-5 \
                                     --valid_steps 5000 \
@@ -91,17 +91,17 @@ To exit the docker environment, type `exit` or press Ctrl+D.
         # extract hidden states of teacher
         python dump_teacher_hiddens.py \
             --bert bert-base-multilingual-cased \
-            --ckpt /output/<exp_name>/ckpt/model_step_100000.pt \
-            --db /data/de-en/DEEN.db --output /data/de-en/targets/<teacher_name>
+            --ckpt /output/cmlm_finetune/ckpt/model_step_100000.pt \
+            --db /data/de-en/DEEN.db --output /data/de-en/targets/bert_teacher
 
         # extract top-k logits
-        python dump_teacher_topk.py --bert_hidden /data/de-en/targets/<teacher_name>
+        python dump_teacher_topk.py --bert_hidden /data/de-en/targets/bert_teacher
         ```
     3. Seq2Seq training with KD
         ```bash
         python opennmt/train.py \
             --bert_kd \
-            --bert_dump /data/de-en/targets/<teacher_name> \
+            --bert_dump /data/de-en/targets/bert_teacher \
             --data_db /data/de-en/DEEN.db \
             -data /data/de-en/DEEN \
             -config opennmt/config/config-transformer-base-mt-deen.yml \
@@ -111,7 +111,7 @@ To exit the docker environment, type `exit` or press Ctrl+D.
             --kd_temperature 10.0 \
             --kd_topk 8 \
             --train_steps 100000 \
-            -save_model /output/<kd_exp_name>
+            -save_model /output/bert_kd_transformer
         ```
 
 
@@ -119,10 +119,10 @@ To exit the docker environment, type `exit` or press Ctrl+D.
 
     The following command will translate the dev split using the 100k step checkpoint, with beam size 5 and length penalty 0.6.
     ```bash
-    ./run_mt.sh /output/<kd_exp_name> 100000 dev 5 0.6
+    ./run_mt.sh /output/bert_kd_transformer 100000 dev 5 0.6
     ```
     Usually the BLEU score correlates well with the accuracy in validation.
-    The results will be stored at `/output/<kd_exp_name>/output/`.
+    The results will be stored at `/output/bert_kd_transformer/output/`.
 
 
 ## Misc
